@@ -10,13 +10,13 @@ import (
 
 type SummaryLog interface {
 	AddField(fieldName string, fieldValue interface{})
-	AddSuccess(node, cmd, resultCode, resultDesc string)
-	AddError(node, cmd, resultCode, resultDesc string)
+	AddSuccess(node, cmd, code, desc string)
+	AddError(node, cmd, code, desc string)
 	IsEnd() bool
 	End(resultCode, resultDescription string) error
 }
 
-func NewSummaryLog(Session, initInvoke string, cmd string) SummaryLog {
+func NewSummaryLog(Session, initInvoke, cmd string) SummaryLog {
 
 	if Session == "" {
 		Session = fmt.Sprintf("default_%s", time.Now().Format("20060102150405"))

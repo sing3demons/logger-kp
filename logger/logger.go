@@ -19,8 +19,15 @@ import (
 type LogConfig struct {
 	ProjectName string
 	Namespace   string
+	AppLog      AppLog           `json:"appLog"`
 	Summary     SummaryLogConfig `json:"summary"`
 	Detail      DetailLogConfig  `json:"detail"`
+}
+
+type AppLog struct {
+	Name       string `json:"name"`
+	LogFile    bool   `json:"logFile"`
+	LogConsole bool   `json:"logConsole"`
 }
 
 type SummaryLogConfig struct {
@@ -147,6 +154,11 @@ func getModuleNameFromGoMod() string {
 var configLog LogConfig = LogConfig{
 	ProjectName: getModuleNameFromGoMod(),
 	Namespace:   "",
+	AppLog: AppLog{
+		Name:       "./logs/app",
+		LogFile:    false,
+		LogConsole: true,
+	},
 	Detail: DetailLogConfig{
 		Name:       "./logs/detail",
 		RawData:    true,
@@ -168,6 +180,21 @@ func LoadLogConfig(cfg LogConfig) *LogConfig {
 
 	if cfg.ProjectName != "" {
 		configLog.ProjectName = cfg.ProjectName
+	}
+
+	if cfg.AppLog.Name != "" {
+		configLog.AppLog.Name = cfg.AppLog.Name
+	}
+
+	if cfg.AppLog.LogFile {
+		configLog.AppLog.LogFile = cfg.AppLog.LogFile
+		if err := ensureLogDirExists(configLog.AppLog.Name); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	if cfg.AppLog.LogConsole {
+		configLog.AppLog.LogConsole = cfg.AppLog.LogConsole
 	}
 
 	if cfg.Detail.Name != "" {
