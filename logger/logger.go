@@ -29,6 +29,7 @@ type AppLog struct {
 	LogFile    bool          `json:"logFile"`
 	LogConsole bool          `json:"logConsole"`
 	LogLevel   zapcore.Level `json:"logLevel"`
+	AppLog     *zap.Logger
 }
 
 type SummaryLogConfig struct {
@@ -164,13 +165,13 @@ var configLog LogConfig = LogConfig{
 		Name:       "./logs/detail",
 		RawData:    true,
 		LogFile:    false,
-		LogConsole: true,
+		LogConsole: false,
 	},
 	Summary: SummaryLogConfig{
 		Name:       "./logs/summary",
 		RawData:    true,
 		LogFile:    false,
-		LogConsole: true,
+		LogConsole: false,
 	},
 }
 
@@ -192,6 +193,8 @@ func LoadLogConfig(cfg LogConfig) *LogConfig {
 		if err := ensureLogDirExists(configLog.AppLog.Name); err != nil {
 			log.Fatal(err)
 		}
+
+		configLog.AppLog.AppLog = newLogFile(configLog.AppLog.Name)
 	}
 
 	if cfg.AppLog.LogConsole {

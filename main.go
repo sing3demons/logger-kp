@@ -11,15 +11,21 @@ import (
 func main() {
 	logger.LoadLogConfig(logger.LogConfig{
 		Summary: logger.SummaryLogConfig{
-			LogFile:    true,
+			LogFile:    false,
 			LogConsole: false,
 		},
 		Detail: logger.DetailLogConfig{
-			LogFile: true,
+			LogFile: false,
 		},
 	})
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	logg := logger.NewLogger()
+
+	http.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
+		logger.InitSession(r.Context(), logg)
+
+		l := logger.NewLog(r.Context())
+		l.Info("test")
 		node := "client"
 		session := "session:" + uuid.New().String()
 		detailLog := logger.NewDetailLog(session, "", "root")
