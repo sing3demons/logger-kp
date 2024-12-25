@@ -25,9 +25,10 @@ type LogConfig struct {
 }
 
 type AppLog struct {
-	Name       string `json:"name"`
-	LogFile    bool   `json:"logFile"`
-	LogConsole bool   `json:"logConsole"`
+	Name       string        `json:"name"`
+	LogFile    bool          `json:"logFile"`
+	LogConsole bool          `json:"logConsole"`
+	LogLevel   zapcore.Level `json:"logLevel"`
 }
 
 type SummaryLogConfig struct {
