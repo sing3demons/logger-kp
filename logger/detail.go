@@ -246,8 +246,8 @@ func (dl *detailLog) End() {
 		os.Stdout.Write([]byte(endOfLine()))
 	}
 
-	if dl.conf.LogFile {
-		dl.conf.LogDetail.Info(string(logDetail))
+	if dl.conf.LogFile && dl.conf.LogDetail != nil  {
+ 		dl.conf.LogDetail.Info(string(logDetail))
 	}
 
 	dl.clear()
@@ -308,8 +308,10 @@ func (dl *detailLog) clear() {
 }
 
 func ToJson(data interface{}) string {
+	fmt.Println("==================>", data)
 	jsonData, err := json.Marshal(data)
 	if err != nil {
+		fmt.Println("Error: ", err)
 		return fmt.Sprintf("%v", data)
 	}
 	return string(jsonData)
@@ -328,3 +330,5 @@ func ToStruct(data interface{}) (result interface{}) {
 	}
 	return result
 }
+
+ 

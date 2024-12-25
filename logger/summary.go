@@ -34,14 +34,6 @@ func NewSummaryLog(Session, initInvoke, cmd string) SummaryLog {
 	}
 }
 
-func (sl *summaryLog) New(scenario string) SummaryLog {
-	sl.mu.Lock()
-	defer sl.mu.Unlock()
-	sl.cmd = scenario
-	sl.blockDetail = []BlockDetail{}
-	return sl
-}
-
 func (sl *summaryLog) AddField(fieldName string, fieldValue interface{}) {
 	sl.mu.Lock()
 	defer sl.mu.Unlock()

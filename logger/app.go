@@ -10,8 +10,7 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-const key = "logger"
-
+ 
 func NewLogger(options ...zap.Option) *zap.Logger {
 	zap.NewProduction()
 	if configLog.AppLog.LogFile {
@@ -56,7 +55,7 @@ func NewLog(c context.Context) *zap.Logger {
 	}
 }
 
-func InitSession(c context.Context, logger *zap.Logger) *zap.Logger {
+func InitSession(c context.Context, logger *zap.Logger) (context.Context, *zap.Logger) {
 	// get session from context
 	session := c.Value(xSession)
 	if session == nil {
@@ -65,6 +64,7 @@ func InitSession(c context.Context, logger *zap.Logger) *zap.Logger {
 			uuidV7 = uuid.New()
 		}
 		session = uuidV7.String()
+
 		// set session to context
 		c = context.WithValue(c, xSession, session)
 	}
@@ -73,5 +73,5 @@ func InitSession(c context.Context, logger *zap.Logger) *zap.Logger {
 	l := logger.With(zap.String("session", c.Value(xSession).(string)))
 	// set logger to context
 	c = context.WithValue(c, key, l)
-	return l
+	return c, l
 }

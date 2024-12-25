@@ -2,7 +2,6 @@ package logger
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -127,7 +126,7 @@ const (
 	xSession        ContextKey = "session"
 	ContentType                = "Content-Type"
 	ContentTypeJSON            = "application/json"
-	ContentJson                = "application/json"
+	key                        = "logger"
 )
 
 func getModuleNameFromGoMod() string {
@@ -231,6 +230,10 @@ func LoadLogConfig(cfg LogConfig) *LogConfig {
 		configLog.Summary.RawData = cfg.Summary.RawData
 	}
 
+	if cfg.Summary.LogConsole {
+		configLog.Summary.LogConsole = cfg.Summary.LogConsole
+	}
+
 	if cfg.Summary.LogFile {
 		configLog.Summary.LogFile = cfg.Summary.LogFile
 		if err := ensureLogDirExists(configLog.Summary.Name); err != nil {
@@ -253,9 +256,10 @@ func newLogFile(path string) *zap.Logger {
 
 func ensureLogDirExists(path string) error {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		err := os.MkdirAll(path, os.ModePerm)
-		if err != nil {
-			return errors.New("failed to create log directory")
+		if path != "" {
+			if err := os.MkdirAll(path, os.ModePerm); err != nil {
+				return fmt.Errorf("Failed to create log directory[%s]: %v", path, err)
+			}
 		}
 	}
 	return nil
@@ -298,9 +302,6 @@ func createLogger(path string) (*zap.Logger, error) {
 
 func getLogFileName(t time.Time) string {
 	appName := configLog.ProjectName
-	if appName == "" {
-		appName = "go-service"
-	}
 	year, month, day := t.Date()
 	hour, minute, second := t.Clock()
 

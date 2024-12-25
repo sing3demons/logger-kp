@@ -19,10 +19,10 @@ func main() {
 		},
 	})
 
-	logg := logger.NewLogger()
+	log := logger.NewLogger()
 
 	http.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
-		logger.InitSession(r.Context(), logg)
+		logger.InitSession(r.Context(), log)
 
 		l := logger.NewLog(r.Context())
 		l.Info("test")
