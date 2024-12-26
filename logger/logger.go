@@ -127,6 +127,8 @@ const (
 	ContentType                = "Content-Type"
 	ContentTypeJSON            = "application/json"
 	key                        = "logger"
+	Summary                    = "Summary"
+	Detail                     = "Detail"
 )
 
 func getModuleNameFromGoMod() string {

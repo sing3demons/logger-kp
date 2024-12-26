@@ -16,6 +16,33 @@ type SummaryLog interface {
 	End(resultCode, resultDescription string) error
 }
 
+type ResultSequences struct {
+	ResultCode string `json:"ResultCode"`
+	ResultDesc string `json:"ResultDesc"`
+}
+
+type Sequences struct {
+	Node   string            `json:"Node"`
+	Cmd    string            `json:"Cmd"`
+	Result []ResultSequences `json:"Result"`
+}
+type LogSummaryEntry struct {
+	LogType             string         `json:"LogType"`
+	InputTimeStamp      string         `json:"InputTimeStamp"`
+	Host                string         `json:"Host"`
+	AppName             string         `json:"AppName"`
+	Instance            string         `json:"Instance"`
+	Session             string         `json:"Session"`
+	InitInvoke          string         `json:"InitInvoke"`
+	Scenario            string         `json:"Scenario"`
+	ResponseResult      string         `json:"ResponseResult"`
+	ResponseDesc        string         `json:"ResponseDesc"`
+	Sequences           []Sequences    `json:"Sequences"`
+	EndProcessTimeStamp string         `json:"EndProcessTimeStamp"`
+	ProcessTime         string         `json:"ProcessTime"`
+	CustomDesc          OptionalFields `json:"CustomDesc,omitempty"`
+}
+
 func NewSummaryLog(Session, initInvoke, cmd string) SummaryLog {
 
 	if Session == "" {
@@ -98,40 +125,51 @@ func (sl *summaryLog) process(responseResult, responseDesc string) {
 	endTime := time.Now()
 	elapsed := endTime.Sub(*sl.requestTime)
 
-	seq := []map[string]interface{}{}
+	// seq := []map[string]interface{}{}
+	var seq []Sequences
 	for _, block := range sl.blockDetail {
-		results := []map[string]string{}
+		// results := []map[string]string{}
+		var results []ResultSequences
 		for _, res := range block.Result {
-			results = append(results, map[string]string{
-				"Result": res.ResultCode,
-				"Desc":   res.ResultDesc,
+			// results = append(results, map[string]string{
+			// 	"Result": res.ResultCode,
+			// 	"Desc":   res.ResultDesc,
+			// })
+			results = append(results, ResultSequences{
+				ResultCode: res.ResultCode,
+				ResultDesc: res.ResultDesc,
 			})
 		}
-		seq = append(seq, map[string]interface{}{
-			"Node":   block.Node,
-			"Cmd":    block.Cmd,
-			"Result": results,
+		// seq = append(seq, map[string]interface{}{
+		// 	"Node":   block.Node,
+		// 	"Cmd":    block.Cmd,
+		// 	"Result": results,
+		// })
+		seq = append(seq, Sequences{
+			Node:   block.Node,
+			Cmd:    block.Cmd,
+			Result: results,
 		})
 	}
 
-	logEntry := map[string]interface{}{
-		"LogType":             "Summary",
-		"InputTimeStamp":      sl.requestTime.Format(time.RFC3339),
-		"Host":                getHostname(),
-		"AppName":             sl.conf.ProjectName,
-		"Instance":            getInstance(),
-		"Session":             sl.session,
-		"InitInvoke":          sl.initInvoke,
-		"Scenario":            sl.cmd,
-		"ResponseResult":      responseResult,
-		"ResponseDesc":        responseDesc,
-		"Sequences":           seq,
-		"EndProcessTimeStamp": endTime.Format(time.RFC3339),
-		"ProcessTime":         fmt.Sprintf("%d ms", elapsed.Milliseconds()),
+	logEntry := LogSummaryEntry{
+		LogType:             Summary,
+		InputTimeStamp:      sl.requestTime.Format(time.RFC3339),
+		Host:                getHostname(),
+		AppName:             sl.conf.ProjectName,
+		Instance:            *getInstance(),
+		Session:             sl.session,
+		InitInvoke:          sl.initInvoke,
+		Scenario:            sl.cmd,
+		ResponseResult:      responseResult,
+		ResponseDesc:        responseDesc,
+		Sequences:           seq,
+		EndProcessTimeStamp: endTime.Format(time.RFC3339),
+		ProcessTime:         fmt.Sprintf("%d ms", elapsed.Milliseconds()),
 	}
 
 	if sl.optionalField != nil {
-		logEntry["CustomDesc"] = sl.optionalField
+		logEntry.CustomDesc = sl.optionalField
 	}
 
 	b, _ := json.Marshal(logEntry)

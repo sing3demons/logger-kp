@@ -36,7 +36,7 @@ func NewDetailLog(Session, initInvoke, scenario string) DetailLog {
 	}
 	host, _ := os.Hostname()
 	data := &detailLog{
-		LogType:       "Detail",
+		LogType:       Detail,
 		Host:          host,
 		AppName:       configLog.ProjectName,
 		Instance:      getInstance(),
