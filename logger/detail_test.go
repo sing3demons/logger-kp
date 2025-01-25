@@ -10,6 +10,8 @@ import (
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 const (
@@ -734,4 +736,71 @@ func TestAutoEnd(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestMockDetailLogIsRawDataEnabled(t *testing.T) {
+	mockLog := new(MockDetailLog)
+
+	// Set up expectations
+	mockLog.On("IsRawDataEnabled").Return(true)
+
+	// Call the mocked method
+	isEnabled := mockLog.IsRawDataEnabled()
+
+	// Assert expectations
+	mockLog.AssertExpectations(t)
+	assert.True(t, isEnabled)
+}
+func TestMockDetailLogAddInputRequest(t *testing.T) {
+	mockLog := new(MockDetailLog)
+
+	// Set up expectations
+	mockLog.On("AddInputRequest", "node1", "cmd1", "invoke1", "rawData", "data").Return()
+
+	// Call the mocked method
+	mockLog.AddInputRequest("node1", "cmd1", "invoke1", "rawData", "data")
+
+	// Assert expectations
+	mockLog.AssertExpectations(t)
+}
+
+func TestMockDetailLogEnd(t *testing.T) {
+	mockLog := new(MockDetailLog)
+
+	// Set up expectations
+	mockLog.On("End").Return()
+
+	// Call the mocked method
+	mockLog.End()
+
+	// Assert expectations
+	mockLog.AssertExpectations(t)
+}
+
+func TestMockDetailLogAutoEnd(t *testing.T) {
+	mockLog := new(MockDetailLog)
+
+	// Set up expectations
+	mockLog.On("AutoEnd").Return(false)
+
+	// Call the mocked method
+	autoEnd := mockLog.AutoEnd()
+
+	// Assert expectations
+	mockLog.AssertExpectations(t)
+	assert.False(t, autoEnd)
+}
+
+func TestMockDetailLogAddInputHttpRequest(t *testing.T) {
+	mockLog := new(MockDetailLog)
+	req, _ := http.NewRequest("POST", "http://example.com", nil)
+
+	// Set up expectations
+	mockLog.On("AddInputHttpRequest", "node1", "cmd1", "invoke1", req, true).Return()
+
+	// Call the mocked method
+	mockLog.AddInputHttpRequest("node1", "cmd1", "invoke1", req, true)
+
+	// Assert expectations
+	mockLog.AssertExpectations(t)
 }
